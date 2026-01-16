@@ -1,82 +1,62 @@
 const User = require('../models/User.model');
 const { generateToken } = require('../services/token.service');
-const { validationResult } = require('express-validator');
 const generateUsername = require('../utils/username');
 
-// REGISTER
-exports.register = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({
-            success: false,
-            message: 'Validation Error',
-            errors: errors.array()
-        });
-    }
+/* ADMIN LOGIN */
+exports.adminLogin = async (req, res) => {
+  const { email, password } = req.body;
 
-    const { name, email, password } = req.body;
-
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-        return res.status(400).json({
-            success: false,
-            message: 'User already exists'
-        });
-    }
-
-    const username = generateUsername(name);
-
-    const user = await User.create({
-        name,
-        email,
-        username,
-        password,
-        role: 'CANDIDATE'
+  const admin = await User.findOne({ email, role: 'ADMIN' });
+  if (!admin || !(await admin.matchPassword(password))) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid admin credentials'
     });
+  }
 
-    return res.status(201).json({
-        success: true,
-        message: 'User registered successfully',
-        data: {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user._id, user.role)
-        }
-    });
+  res.json({
+    success: true,
+    token: generateToken(admin._id, admin.role)
+  });
 };
 
-// LOGIN
-exports.login = async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({
-            success: false,
-            message: 'Validation Error',
-            errors: errors.array()
-        });
-    }
+/* ADMIN CREATES CANDIDATE */
+exports.createCandidateByAdmin = async (req, res) => {
+  const { name, email, password } = req.body;
 
-    const { email, password } = req.body;
+  const exists = await User.findOne({ email });
+  if (exists) {
+    return res.status(400).json({ message: 'Candidate already exists' });
+  }
 
-    const user = await User.findOne({ email });
-    if (!user || !(await user.matchPassword(password))) {
-        return res.status(401).json({
-            success: false,
-            message: 'Invalid email or password'
-        });
-    }
+  const candidate = await User.create({
+    name,
+    email,
+    username: generateUsername(name),
+    password,
+    role: 'CANDIDATE'
+  });
 
-    return res.status(200).json({
-        success: true,
-        message: 'Login successful',
-        data: {
-            _id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user._id, user.role)
-        }
+  res.status(201).json({
+    success: true,
+    message: 'Candidate created'
+  });
+};
+
+/* CANDIDATE LOGIN */
+exports.candidateLogin = async (req, res) => {
+  const { email, password } = req.body;
+
+  const candidate = await User.findOne({ email, role: 'CANDIDATE' });
+  if (!candidate || !(await candidate.matchPassword(password))) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid candidate credentials'
     });
+  }
+
+  res.json({
+    success: true,
+    token: generateToken(candidate._id, candidate.role)
+  });
 };

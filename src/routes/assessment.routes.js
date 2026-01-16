@@ -1,12 +1,26 @@
-const express = require('express');
-const router = express.Router();
-const { protect } = require('../middleware/auth.middleware');
-const { getAssessments, getAssessmentById } = require('../controllers/assessment.controller');
+const router = require('express').Router();
+const authMiddleware = require('../middleware/auth.middleware');
+const roleMiddleware = require('../middleware/role.middleware');
 
-// Require authentication for listing assessments
-router.use(protect);
+const {
+  createAssessment,
+  getAssessments
+} = require('../controllers/assessment.controller');
 
-router.get('/', getAssessments);
-router.get('/:id', getAssessmentById);
+// ADMIN creates
+router.post(
+  '/',
+  authMiddleware,
+  roleMiddleware('ADMIN'),
+  createAssessment
+);
+
+// CANDIDATE views
+router.get(
+  '/',
+  authMiddleware,
+  roleMiddleware('CANDIDATE'),
+  getAssessments
+);
 
 module.exports = router;

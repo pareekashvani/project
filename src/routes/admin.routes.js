@@ -1,15 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const { check } = require('express-validator');
-const { protect } = require('../middleware/auth.middleware');
-const { authorize } = require('../middleware/role.middleware');
-const { createAssessment, addQuestion } = require('../controllers/assessment.controller');
-const { getAllResults } = require('../controllers/result.controller');
 
-// Protect all routes
-router.use(protect);
-router.use(authorize('ADMIN'));
+const authMiddleware = require('../middleware/auth.middleware');
+const roleMiddleware = require('../middleware/role.middleware');
 
+const {
+    createAssessment,
+    addQuestion
+} = require('../controllers/assessment.controller');
+
+const {
+    getAllResults
+} = require('../controllers/result.controller');
+
+// 🔐 Protect all admin routes
+router.use(authMiddleware);
+router.use(roleMiddleware('ADMIN'));
+
+// Create Assessment
 router.post(
     '/assessments',
     [
@@ -19,17 +28,19 @@ router.post(
     createAssessment
 );
 
+// Add Question
 router.post(
     '/questions',
     [
         check('assessmentId', 'Assessment ID is required').not().isEmpty(),
         check('questionText', 'Question text is required').not().isEmpty(),
-        check('options', 'Options must be an array of strings').isArray({ min: 2 }),
+        check('options', 'Options must be an array').isArray({ min: 2 }),
         check('correctOptionIndex', 'Correct option index is required').isNumeric()
     ],
     addQuestion
 );
 
+// View All Results
 router.get('/results', getAllResults);
 
 module.exports = router;

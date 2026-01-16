@@ -1,9 +1,13 @@
-const express = require('express');
-const router = express.Router();
-const { protect } = require('../middleware/auth.middleware');
-const { getMyResults } = require('../controllers/result.controller');
+const router = require('express').Router();
+const authMiddleware = require('../middleware/auth.middleware');
+const roleMiddleware = require('../middleware/role.middleware');
 
-router.use(protect);
-router.get('/me', getMyResults);
+const { getAllResults } = require('../controllers/result.controller');
+
+// ONLY ADMIN
+router.use(authMiddleware);
+router.use(roleMiddleware('ADMIN'));
+
+router.get('/', getAllResults);
 
 module.exports = router;

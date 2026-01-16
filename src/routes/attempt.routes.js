@@ -1,9 +1,15 @@
-const express = require('express');
-const router = express.Router();
-const { protect } = require('../middleware/auth.middleware');
-const { startAttempt, submitAttempt } = require('../controllers/attempt.controller');
+const router = require('express').Router();
+const authMiddleware = require('../middleware/auth.middleware');
+const roleMiddleware = require('../middleware/role.middleware');
 
-router.use(protect);
+const {
+  startAttempt,
+  submitAttempt
+} = require('../controllers/attempt.controller');
+
+// ONLY CANDIDATE
+router.use(authMiddleware);
+router.use(roleMiddleware('CANDIDATE'));
 
 router.post('/start/:id', startAttempt);
 router.post('/submit/:id', submitAttempt);
