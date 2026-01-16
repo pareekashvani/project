@@ -5,11 +5,19 @@ const roleMiddleware = require('../middleware/role.middleware');
 const {
   adminLogin,
   createCandidateByAdmin,
-  candidateLogin
+  candidateLogin,
+  seedAdmin   //  new controller
 } = require('../controllers/auth.controller');
 
-// ADMIN
+/* =========================
+   DEV ONLY – ADMIN SEED
+   (for testing admin APIs)
+========================= */
+router.post('/admin/seed', seedAdmin);
+
+// ================= ADMIN =================
 router.post('/admin/login', adminLogin);
+
 router.post(
   '/admin/create-candidate',
   authMiddleware,
@@ -17,7 +25,7 @@ router.post(
   createCandidateByAdmin
 );
 
-// CANDIDATE
+// ================= CANDIDATE =================
 router.post('/candidate/login', candidateLogin);
 
 module.exports = router;
