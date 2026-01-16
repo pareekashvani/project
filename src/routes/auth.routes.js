@@ -6,14 +6,13 @@ const {
   adminLogin,
   createCandidateByAdmin,
   candidateLogin,
-  seedAdmin   //  new controller
+  registerAdmin
 } = require('../controllers/auth.controller');
 
 /* =========================
-   DEV ONLY – ADMIN SEED
-   (for testing admin APIs)
+   ADMIN REGISTRATION
 ========================= */
-router.post('/admin/seed', seedAdmin);
+router.post('/admin/register', registerAdmin);
 
 // ================= ADMIN =================
 router.post('/admin/login', adminLogin);
