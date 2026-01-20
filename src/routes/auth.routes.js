@@ -18,10 +18,10 @@ router.post('/admin/register', registerAdmin);
 router.post('/admin/login', adminLogin);
 
 router.post(
-  '/admin/create-candidate',
+  '/admin/create-admin',
   authMiddleware,
   roleMiddleware('ADMIN'),
-  createCandidateByAdmin
+  registerAdmin
 );
 
 // ================= CANDIDATE =================
