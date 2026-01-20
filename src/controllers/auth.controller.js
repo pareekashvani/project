@@ -7,13 +7,13 @@ exports.registerAdmin = async (req, res) => {
   const { name, email, password, adminSecret } = req.body;
 
   // Simple security check (use env var in production)
-  const SECRET_KEY = process.env.ADMIN_SECRET || 'secure-admin-key';
+  /*const SECRET_KEY = process.env.ADMIN_SECRET || 'secure-admin-key';
   if (adminSecret !== SECRET_KEY) {
     return res.status(403).json({
       success: false,
       message: 'Invalid admin secret'
     });
-  }
+  }*/
 
   const exists = await User.findOne({ email });
   if (exists) {
